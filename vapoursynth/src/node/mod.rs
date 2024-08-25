@@ -20,6 +20,7 @@ pub use self::errors::GetFrameError;
 
 bitflags! {
     /// Node flags.
+    #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
     pub struct Flags: i32 {
         /// This flag indicates that the frames returned by the filter should not be cached. "Fast"
         /// filters should set this to reduce cache bloat.
