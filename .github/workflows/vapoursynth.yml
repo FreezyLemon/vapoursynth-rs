@@ -2,6 +2,10 @@ name: vapoursynth
 
 on: [push, pull_request]
 
+env:
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   clippy-rustfmt:
     runs-on: ubuntu-20.04
