@@ -8,7 +8,7 @@ sudo apt-get install nasm
 if [ "$1" = "i686" ]; then
     sudo dpkg --add-architecture i386
     sudo apt-get update
-    sudo apt-get install gcc-multilib g++-multilib libpython3.8-dev:i386
+    sudo apt-get install gcc-multilib g++-multilib libpython3-dev:i386
 fi
 
 # Install Cython
@@ -23,7 +23,7 @@ else
 fi
 
 # Install zimg
-git clone --depth 1 --branch release-3.0.3 https://github.com/sekrit-twc/zimg.git
+git clone --depth 1 --branch release-3.0.5 https://github.com/sekrit-twc/zimg.git
 cd zimg
 ./autogen.sh
 ./configure $CONFIGURE_ARGS
@@ -32,7 +32,7 @@ sudo make install
 cd ..
 
 # Install VapourSynth
-git clone --depth 1 --branch R53 https://github.com/vapoursynth/vapoursynth.git vs-dir
+git clone --depth 1 --branch R69 https://github.com/vapoursynth/vapoursynth.git vs-dir
 cd vs-dir
 ./autogen.sh
 ./configure $CONFIGURE_ARGS

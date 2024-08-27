@@ -31,47 +31,31 @@ jobs:
         args: --all-targets --package sample-plugin
         name: sample-plugin
 
-  unix-tests:
+  linux-tests:
     strategy:
       fail-fast: false
 
       matrix:
         toolchain:
-        # I can't figure out how to install an older version of VapourSynth on macOS,
-        # so don't test macOS until we can test on the latest version again.
-        #  - stable-x86_64-apple-darwin
          - stable-x86_64-unknown-linux-gnu
          - stable-i686-unknown-linux-gnu
-        include:
-        #  - toolchain: stable-x86_64-apple-darwin
-        #    os: macOS-10.15
-         - toolchain: stable-x86_64-unknown-linux-gnu
-           os: ubuntu-20.04
-         - toolchain: stable-i686-unknown-linux-gnu
-           os: ubuntu-20.04
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Install VapourSynth on MacOS
-      if: matrix.os == 'macOS-10.15'
-      run: |
-        brew install vapoursynth
+    - uses: actions/checkout@v4
     - name: Install VapourSynth on Ubuntu 64-bit
       if: matrix.toolchain == 'stable-x86_64-unknown-linux-gnu'
-      run: |
-        build/script.sh
+      run: build/script.sh
+
     - name: Install VapourSynth on Ubuntu 32-bit
       if: matrix.toolchain == 'stable-i686-unknown-linux-gnu'
-      run: |
-        build/script.sh i686
+      run: build/script.sh i686
+
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: ${{ matrix.toolchain }}
-        override: true
     - name: Run tests
       run: |
         cd vapoursynth
