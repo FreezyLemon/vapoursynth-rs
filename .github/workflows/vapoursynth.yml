@@ -6,30 +6,19 @@ jobs:
   clippy-rustfmt:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
-        profile: minimal
-        toolchain: stable
-        override: true
         components: clippy, rustfmt
     - name: Run rustfmt
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: --all -- --check
+      run: cargo fmt --all -- --check
     - name: Run clippy on all tests
-      uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all --all-targets --all-features --exclude sample-plugin
+      run: |
+        cargo clippy --workspace --all-targets --all-features --exclude sample-plugin
     - name: Run clippy on the sample-plugin
-      uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-targets --package sample-plugin
-        name: sample-plugin
+      run: |
+        cargo clippy --all-targets --package sample-plugin
 
   linux-tests:
     strategy:
