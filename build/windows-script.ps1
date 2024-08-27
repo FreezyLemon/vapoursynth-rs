@@ -1,26 +1,20 @@
-# Get the arch and dir
-param([String]$arch="x86_64")
-
 $NAME = "VapourSynth"
-$PY_DIR = "py-dir"
+$VS_VER = "R69"
 $VS_DIR = "vs-dir"
+$VS_PKG = "VapourSynth64-Portable-$VS_VER.zip"
 
-If ($arch -eq "i686") {
-        $SUFFIX = 32
-        $PYTHON_PKG = "python-3.9.10-embed-win32.zip"
-} Else {
-        $SUFFIX = 64
-        $PYTHON_PKG = "python-3.9.10-embed-amd64.zip"
-}
+$PY_DIR = "py-dir"
+$PY_VER = "3.12.5"
+$PY_PKG = "python-$PY_VER-embed-amd64.zip"
 
 # Download Python embeddable and VapourSynth portable
-$VS_PATH = "https://github.com/vapoursynth/vapoursynth/releases/download/R53"
-curl -LO "https://www.python.org/ftp/python/3.9.10/$PYTHON_PKG"
-curl -LO "$VS_PATH/VapourSynth$SUFFIX-Portable-R53.7z"
+$VS_PATH = "https://github.com/vapoursynth/vapoursynth/releases/download/$VS_VER/$VS_PKG"
+curl -LO "https://www.python.org/ftp/python/$PY_VER/$PY_PKG"
+curl -LO "$VS_PATH"
 
 # Unzip Python embeddable and VapourSynth portable
-7z x "$PYTHON_PKG" -o"$PY_DIR"
-7z x "VapourSynth$SUFFIX-Portable-R53.7z" -o"$VS_DIR"
+7z x "$PY_PKG" -o"$PY_DIR"
+Expand-Archive "$VS_PKG" "$VS_DIR"
 
 # Move all VapourSynth files inside the Python ones
 Move-Item -Force -Path "$VS_DIR\*" -Destination "$PY_DIR"

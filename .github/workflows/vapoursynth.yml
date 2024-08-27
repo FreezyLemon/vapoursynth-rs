@@ -94,37 +94,18 @@ jobs:
         toolchain:
          - stable-x86_64-pc-windows-msvc
          - stable-x86_64-pc-windows-gnu
-         - stable-i686-pc-windows-msvc
-         - stable-i686-pc-windows-gnu
-        include:
-         - toolchain: stable-x86_64-pc-windows-msvc
-           arch: x86_64
-         - toolchain: stable-x86_64-pc-windows-gnu
-           arch: x86_64
-         - toolchain: stable-i686-pc-windows-msvc
-           arch: i686
-         - toolchain: stable-i686-pc-windows-gnu
-           arch: i686
 
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Install VapourSynth for Windows 64-bit
-      if: matrix.arch == 'x86_64'
       run: |
         build/windows-script.ps1
-    - name: Install VapourSynth for Windows 32-bit
-      if: matrix.arch == 'i686'
-      run: |
-        build/windows-script.ps1 -arch i686
-    - run: rustup set auto-self-update disable
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@master
       with:
-        profile: minimal
         toolchain: ${{ matrix.toolchain }}
-        override: true
     - name: Run tests
       run: |
         $Env:Path += ";C:\Program Files\VapourSynth;"
@@ -136,8 +117,6 @@ jobs:
         cd sample-plugin
         cargo build --verbose
     - name: Run sample-plugin tests
-      # https://github.com/rust-lang/rust/issues/50176
-      if: matrix.toolchain != 'stable-i686-pc-windows-gnu'
       run: |
         $Env:Path += ";C:\Program Files\VapourSynth;"
         cd sample-plugin
@@ -145,7 +124,4 @@ jobs:
                   vapoursynth/vapoursynth-functions `
                   vapoursynth/vsscript-functions"
     - name: Run doc
-      uses: actions-rs/cargo@v1
-      with:
-        command: doc
-        args: --all-features --verbose
+      run: cargo doc --all-features --verbose
