@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["call_config_func","call_register_func"]};

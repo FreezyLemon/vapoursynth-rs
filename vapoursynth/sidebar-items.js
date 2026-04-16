@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["export_vapoursynth_plugin","make_filter_function"],"mod":["api","component","core","format","frame","function","map","node","plugin","plugins","prelude","video_info","vsscript"]};

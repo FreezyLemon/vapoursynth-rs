@@ -1,0 +1,111 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A safe wrapper for VapourSynth, written in Rust."><title>vapoursynth - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-b7b9f40b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="vapoursynth" data-themes="" data-resource-suffix="" data-rustdoc-version="1.95.0 (59807616e 2026-04-14)" data-channel="1.95.0" data-search-js="search-63369b7b.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5013f961.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">Crate vapoursynth</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../vapoursynth/index.html">vapoursynth</a><span class="version">0.5.2</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#functionality" title="Functionality">Functionality</a></li><li><a href="#short-example" title="Short example">Short example</a></li><li><a href="#plugins" title="Plugins">Plugins</a></li><li><a href="#short-plugin-example" title="Short plugin example">Short plugin example</a></li><li><a href="#supported-versions" title="Supported Versions">Supported Versions</a></li><li><a href="#building" title="Building">Building</a></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#macros" title="Macros">Macros</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><h1>Crate <span>vapoursynth</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/vapoursynth/lib.rs.html#1-184">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A safe wrapper for <a href="https://github.com/vapoursynth/vapoursynth">VapourSynth</a>, written in Rust.</p>
+<p>The primary goal is safety (that is, safe Rust code should not trigger undefined behavior), and
+secondary goals include performance and ease of use.</p>
+<h3 id="functionality"><a class="doc-anchor" href="#functionality">§</a>Functionality</h3>
+<p>Most of the VapourSynth API is covered. It’s possible to evaluate <code>.vpy</code> scripts, access their
+properties and output, retrieve frames; enumerate loaded plugins and invoke their functions as
+well as create VapourSynth filters.</p>
+<p>For an example usage see
+<a href="https://github.com/rust-av/vapoursynth-rs/blob/master/vapoursynth/examples/vspipe.rs">examples/vspipe.rs</a>,
+a complete reimplementation of VapourSynth’s
+<a href="https://github.com/vapoursynth/vapoursynth/blob/master/src/vspipe/vspipe.cpp">vspipe</a> in safe
+Rust utilizing this crate.</p>
+<p>For a VapourSynth plugin example see
+<a href="https://github.com/rust-av/vapoursynth-rs/blob/master/sample-plugin">sample-plugin</a> which
+implements some simple filters.</p>
+<h3 id="short-example"><a class="doc-anchor" href="#short-example">§</a>Short example</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>vapoursynth::prelude::<span class="kw-2">*</span>;
+
+<span class="kw">let </span>env = Environment::from_file(<span class="string">"test.vpy"</span>, EvalFlags::SetWorkingDir)<span class="question-mark">?</span>;
+<span class="kw">let </span>node = env.get_output(<span class="number">0</span>)<span class="question-mark">?</span>.<span class="number">0</span>; <span class="comment">// Without `.0` for VSScript API 3.0
+</span><span class="kw">let </span>frame = node.get_frame(<span class="number">0</span>)<span class="question-mark">?</span>;
+
+<span class="macro">println!</span>(<span class="string">"Resolution: {}×{}"</span>, frame.width(<span class="number">0</span>), frame.height(<span class="number">0</span>));</code></pre></div><h3 id="plugins"><a class="doc-anchor" href="#plugins">§</a>Plugins</h3>
+<p>To make a VapourSynth plugin, start by creating a new Rust library with
+<code>crate-type = ["cdylib"]</code>. Then add filters by implementing the <code>plugins::Filter</code> trait. Bind
+them to functions by implementing <code>plugins::FilterFunction</code>, which is much more easily done via
+the <code>make_filter_function!</code> macro. Finally, put <code>export_vapoursynth_plugin!</code> at the top level
+of <code>src/lib.rs</code> to export the functionality.</p>
+<p><strong>Important note:</strong> due to what seems to be a
+<a href="https://github.com/rust-lang/rust/issues/50176">bug</a> in rustc, it’s impossible to make plugins
+on the <code>i686-pc-windows-gnu</code> target (all other variations of <code>x86_64</code> and <code>i686</code> do work).
+Please use <code>i686-pc-windows-msvc</code> for an i686 Windows plugin.</p>
+<h3 id="short-plugin-example"><a class="doc-anchor" href="#short-plugin-example">§</a>Short plugin example</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
+</span><span class="kw">extern crate </span>vapoursynth;
+
+<span class="kw">use </span>anyhow::{anyhow, Error};
+<span class="kw">use </span>vapoursynth::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>vapoursynth::core::CoreRef;
+<span class="kw">use </span>vapoursynth::plugins::{Filter, FilterArgument, FrameContext, Metadata};
+<span class="kw">use </span>vapoursynth::video_info::VideoInfo;
+
+<span class="comment">// A simple filter that passes the frames through unchanged.
+</span><span class="kw">struct </span>Passthrough&lt;<span class="lifetime">'core</span>&gt; {
+    source: Node&lt;<span class="lifetime">'core</span>&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'core</span>&gt; Filter&lt;<span class="lifetime">'core</span>&gt; <span class="kw">for </span>Passthrough&lt;<span class="lifetime">'core</span>&gt; {
+    <span class="kw">fn </span>video_info(<span class="kw-2">&amp;</span><span class="self">self</span>, _api: API, _core: CoreRef&lt;<span class="lifetime">'core</span>&gt;) -&gt; Vec&lt;VideoInfo&lt;<span class="lifetime">'core</span>&gt;&gt; {
+        <span class="macro">vec!</span>[<span class="self">self</span>.source.info()]
+    }
+
+    <span class="kw">fn </span>get_frame_initial(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        _api: API,
+        _core: CoreRef&lt;<span class="lifetime">'core</span>&gt;,
+        context: FrameContext,
+        n: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;FrameRef&lt;<span class="lifetime">'core</span>&gt;&gt;, Error&gt; {
+        <span class="self">self</span>.source.request_frame_filter(context, n);
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+    }
+
+    <span class="kw">fn </span>get_frame(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        _api: API,
+        _core: CoreRef&lt;<span class="lifetime">'core</span>&gt;,
+        context: FrameContext,
+        n: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;FrameRef&lt;<span class="lifetime">'core</span>&gt;, Error&gt; {
+        <span class="self">self</span>.source
+            .get_frame_filter(context, n)
+            .ok_or(<span class="macro">anyhow!</span>(<span class="string">"Couldn't get the source frame"</span>))
+    }
+}
+
+<span class="macro">make_filter_function!</span> {
+    PassthroughFunction, <span class="string">"Passthrough"
+
+    </span><span class="kw">fn </span>create_passthrough&lt;<span class="lifetime">'core</span>&gt;(
+        _api: API,
+        _core: CoreRef&lt;<span class="lifetime">'core</span>&gt;,
+        clip: Node&lt;<span class="lifetime">'core</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Filter&lt;<span class="lifetime">'core</span>&gt; + <span class="lifetime">'core</span>&gt;&gt;, Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Box::new(Passthrough { source: clip })))
+    }
+}
+
+<span class="macro">export_vapoursynth_plugin!</span> {
+    Metadata {
+        identifier: <span class="string">"com.example.passthrough"</span>,
+        namespace: <span class="string">"passthrough"</span>,
+        name: <span class="string">"Example Plugin"</span>,
+        read_only: <span class="bool-val">true</span>,
+    },
+    [PassthroughFunction::new()]
+}</code></pre></div>
+<p>Check <a href="https://github.com/rust-av/vapoursynth-rs/blob/master/sample-plugin">sample-plugin</a> for
+an example plugin which exports some simple filters.</p>
+<h3 id="supported-versions"><a class="doc-anchor" href="#supported-versions">§</a>Supported Versions</h3>
+<p>All VapourSynth and VSScript API versions starting with 4.0 are supported.</p>
+<h3 id="building"><a class="doc-anchor" href="#building">§</a>Building</h3>
+<p>Make sure you have the corresponding libraries available if you enable the linking features.
+You can use the <code>VAPOURSYNTH_LIB_DIR</code> environment variable to specify a custom directory with
+the library files.</p>
+<p>On Windows the easiest way is to use the VapourSynth installer (make sure the VapourSynth SDK
+is checked). The crate should pick up the library directory automatically. If it doesn’t or if
+you’re cross-compiling, set <code>VAPOURSYNTH_LIB_DIR</code> to
+<code>&lt;path to the VapourSynth installation&gt;\sdk\lib64</code> or <code>&lt;...&gt;\lib32</code>, depending on the target
+bitness.</p>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.anyhow"><code>pub use <a class="mod" href="../anyhow/index.html" title="mod anyhow">anyhow</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="api/index.html" title="mod vapoursynth::api">api</a></dt><dd>Most general VapourSynth API functions.</dd><dt><a class="mod" href="component/index.html" title="mod vapoursynth::component">component</a></dt><dd>The pixel component trait.</dd><dt><a class="mod" href="core/index.html" title="mod vapoursynth::core">core</a></dt><dd>VapourSynth cores.</dd><dt><a class="mod" href="format/index.html" title="mod vapoursynth::format">format</a></dt><dd>VapourSynth frame formats.</dd><dt><a class="mod" href="frame/index.html" title="mod vapoursynth::frame">frame</a></dt><dd>VapourSynth frames.</dd><dt><a class="mod" href="function/index.html" title="mod vapoursynth::function">function</a></dt><dd>VapourSynth callable functions.</dd><dt><a class="mod" href="map/index.html" title="mod vapoursynth::map">map</a></dt><dd>VapourSynth maps.</dd><dt><a class="mod" href="node/index.html" title="mod vapoursynth::node">node</a></dt><dd>VapourSynth nodes.</dd><dt><a class="mod" href="plugin/index.html" title="mod vapoursynth::plugin">plugin</a></dt><dd>VapourSynth plugins.</dd><dt><a class="mod" href="plugins/index.html" title="mod vapoursynth::plugins">plugins</a></dt><dd>Things related to making VapourSynth plugins.</dd><dt><a class="mod" href="prelude/index.html" title="mod vapoursynth::prelude">prelude</a></dt><dd>The VapourSynth prelude.</dd><dt><a class="mod" href="video_info/index.html" title="mod vapoursynth::video_info">video_<wbr>info</a></dt><dd>Video clip formats.</dd><dt><a class="mod" href="vsscript/index.html" title="mod vapoursynth::vsscript">vsscript</a></dt><dd>VapourSynth script-related things.</dd></dl><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><dl class="item-table"><dt><a class="macro" href="macro.export_vapoursynth_plugin.html" title="macro vapoursynth::export_vapoursynth_plugin">export_<wbr>vapoursynth_<wbr>plugin</a></dt><dd>Exports a VapourSynth plugin from this library.</dd><dt><a class="macro" href="macro.make_filter_function.html" title="macro vapoursynth::make_filter_function">make_<wbr>filter_<wbr>function</a></dt><dd>Make a filter function easily and avoid boilerplate.</dd></dl></section></div></main></body></html>

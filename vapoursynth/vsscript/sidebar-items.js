@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error","EvalFlags"],"struct":["Environment","VSScriptError"]};
