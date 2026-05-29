@@ -34,6 +34,27 @@ fn discover_vsscript_path() -> Option<String> {
     (!path.is_empty()).then(|| path.to_owned())
 }
 
+#[cfg(windows)]
+fn discover_win_registry_path() -> Option<String> {
+    use std::path::Path;
+    use winreg::RegKey;
+    use winreg::enums::*;
+
+    let roots = [
+        RegKey::predef(HKEY_CURRENT_USER),
+        RegKey::predef(HKEY_LOCAL_MACHINE),
+    ];
+
+    let mut existing_paths_from_reg = roots.iter().filter_map(|root| {
+        root.open_subkey("SOFTWARE\\VapourSynth")
+            .and_then(|k| k.get_value("VSScriptDLL"))
+            .ok()
+            .filter(|p| Path::new(&p).exists())
+    });
+
+    existing_paths_from_reg.next()
+}
+
 fn candidate_paths(env_path: Option<String>, discovered_path: Option<String>) -> Vec<String> {
     if let Some(path) = env_path {
         return vec![path];

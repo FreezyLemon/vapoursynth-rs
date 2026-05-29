@@ -21,6 +21,9 @@ anyhow = "1.0.58"
 thiserror = "2.0.17"
 vapoursynth-sys = { version = "0.6", path = "../vapoursynth-sys" }
 
+[target.'cfg(windows)'.dependencies]
+winreg = "0.56"
+
 [dev-dependencies]
 clap = "3.2.10"
 
